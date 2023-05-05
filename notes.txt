@@ -1,0 +1,10 @@
+Er mag geen vierkant aanwezig zijn langs de muur:
+    Voor een positie aan de muur x een buur y van de oorspronkelijk x en de buren a & b van de oorspronkelijke x en de buur y die ook buren a & b zijn met elkaar niet gelijk zijn aan elkaar
+
+Continue muur:
+
+Edges niet crossen?
+
+Vlakken moeten correcte grootte hebben (recursie gebruiken)?
+
+Topidee: groep van zwarte blokken moet gelijk zij:n aan 1
