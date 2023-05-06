@@ -1,36 +1,45 @@
+
 vocabulary V {
-    type Rij := {1 .. 5 }
-    type Kolom := {1 .. 5}
-    cijfer: Rij * Kolom * Int -> Bool
-    muur: Rij * Kolom -> Bool
+    type Row := {1 .. 5 }
+    type Column := {1 .. 5}
+    value: Row * Column * Int -> Bool
+    isWall: Row * Column -> Bool
+
     // Groups have same colour and are adjacent in some way
-    grouped: Rij * Kolom * Rij * Kolom -> Bool
+    isConnectedWall: Row * Column * Row * Column -> Bool
+    isConnectedSurface:  Row * Column * Row * Column -> Bool
 
 }
 
 theory T:V {
-    // Identify blocks as grouped
+    // Continuous black wall
     {
-        // recursion (indirect connections)
-        !x1, x2, x3 in Rij, y1, y2, y3 in Kolom: grouped(x1, y1, x2, y2) <- grouped(x1, y1, x3, y3)  & grouped(x3, y3, x2, y2).
-        // base conditions
-        !x1, x2 in Rij, y1, y2 in Kolom : grouped(x1, y1, x2, y2) <- ((x1 = x2 & y1 = y2 + 1) | (x1 = x2 + 1 & y1 = y2) | (x1 = x2 & y1 = y2 - 1) | (x1 = x2 - 1 & y1 = y1)) & ((~muur(x1, y1) & ~muur(x2, y2)) | (muur(x1, y1) & muur(x2, y2))).
+        // Adjacent walls connect to isConnectedWall
+        !x1, x2 in Row, y1, y2 in Column : isConnectedWall(x1, y1, x2, y2) <- ((x1 = x2 & y1 = y2 + 1) | (x1 = x2 + 1 & y1 = y2) | (x1 = x2 & y1 = y2 - 1) | (x1 = x2 - 1 & y1 = y1)) & (isWall(x1, y1) & isWall(x2, y2)). 
+        // Connect walls
+        !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedWall(x1, y1, x2, y2) <- isConnectedWall(x1, y1, x3, y3)  & isConnectedWall(x3, y3, x2, y2).
+        // Continuous - every wall has to reachable by every wall
+        !x1, x2 in Row, y1, y2 in Column: isConnectedWall(x1, y1, x2, y2) <-  (isWall(x1, y1) & isWall(x2, y2)). 
     }
 
-    // Don't cross borders
-
-
-    // Continuous black wall
-
-
     // Correct nr of blocks in whitespace
+    {
+        // Adjacent surfaces are connected
+        !x1, x2 in Row, y1, y2 in Column : isConnectedSurface(x1, y1, x2, y2) <- (((x1 = x2 & y1 = y2 + 1) | (x1 = x2 + 1 & y1 = y2) | (x1 = x2 & y1 = y2 - 1) | (x1 = x2 - 1 & y1 = y1)) & (~isWall(x1, y1) & ~isWall(x2, y2))). 
+        // Connect surfaces
+        !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedSurface(x1, y1, x2, y2) <- isConnectedSurface(x1, y1, x3, y3)  & isConnectedSurface(x3, y3, x2, y2).
+    }
+    // Size limitation
+    !(xc, yc, cc) in value:  #{ x in Row, y in Column: isConnectedSurface(xc, yc, x, y) } = cc. 
 
-    // Only 1 black formation (grouped = 1)
+    // No square of walls
+    !x in Row, y in Column : ~(isWall(x, y) & isWall(x+1, y) & isWall(x, y+1) & isWall(x+1, y+1)).
+
+    //  Border handling?
 
 }
 structure S:V {
-    cijfer:= {(2, 1, 3), (2, 3, 6), (4, 3, 1), (4, 5, 2)}.
-
+    value:= {(2, 1, 3), (2, 3, 6), (4, 3, 1), (4, 5, 2)}.
 }
 
 procedure main() {
