@@ -16,7 +16,7 @@ theory T:V {
         // Adjacent walls connect to isConnectedWall
         !x1, x2 in Row, y1, y2 in Column : isConnectedWall(x1, y1, x2, y2) <- ((x1 = x2 & y1 = y2 + 1) | (x1 = x2 + 1 & y1 = y2) | (x1 = x2 & y1 = y2 - 1) | (x1 = x2 - 1 & y1 = y2)) & (isWall(x1, y1) & isWall(x2, y2)) . 
         // Connect walls
-        !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedWall(x1, y1, x2, y2) <- isConnectedWall(x1, y1, x3, y3)  & isConnectedWall(x3, y3, x2, y2)   & ~(x1 = x2 & y1 = y2).
+        !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedWall(x1, y1, x2, y2) <- isConnectedWall(x1, y1, x3, y3)  & isConnectedWall(x3, y3, x2, y2) & ~(x1 = x2 & y1 = y2).
 
     }
     // Continuous - every wall has to reachable by every wall
@@ -27,13 +27,13 @@ theory T:V {
         // Adjacent surfaces are connected
         !x1, x2 in Row, y1, y2 in Column : isConnectedSurface(x1, y1, x2, y2) <- ((x1 = x2 & y1 = y2 + 1) | (x1 = x2 + 1 & y1 = y2) | (x1 = x2 & y1 = y2 - 1) | (x1 = x2 - 1 & y1 = y2)) & (~isWall(x1, y1) & ~isWall(x2, y2)). 
         // Connect surfaces
-        !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedSurface(x1, y1, x2, y2) <- isConnectedSurface(x1, y1, x3, y3)  & isConnectedSurface(x3, y3, x2, y2)   & ~(x1 = x2 & y1 = y2).
+        !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedSurface(x1, y1, x2, y2) <- isConnectedSurface(x1, y1, x3, y3)  & isConnectedSurface(x3, y3, x2, y2) & ~(x1 = x2 & y1 = y2).
     }
     // Size limitation
     !(xc, yc, cc) in value:  #{ x in Row, y in Column: isConnectedSurface(xc, yc, x, y) } = cc. 
 
     // No square of walls
-    // !x in Row, y in Column : ~(isWall(x, y) & isWall(x+1, y) & isWall(x, y+1) & isWall(x+1, y+1)).
+    !x in Row, y in Column : ~(isWall(x, y) & isWall(x+1, y) & isWall(x, y+1) & isWall(x+1, y+1)).
 
     //  Border handling?
 
