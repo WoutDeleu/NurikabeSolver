@@ -1,6 +1,6 @@
 vocabulary V {
-    type Row := {1 .. 3}
-    type Column := {1 .. 3}
+    type Row := {1 ..5}
+    type Column := {1 .. 5}
     value: Row * Column * Int -> Bool
     isWall: Row * Column -> Bool
 
@@ -20,30 +20,43 @@ theory T:V {
 
     }
     // Continuous - every wall has to reachable by every wall
-    !x1, x2 in Row, y1, y2 in Column: isConnectedWall(x1, y1, x2, y2) =  (isWall(x1, y1) & isWall(x2, y2)). 
+    !x1, x2 in Row, y1, y2 in Column: isConnectedWall(x1, y1, x2, y2) <=>  (isWall(x1, y1) & isWall(x2, y2)) & ~(x1 = x2 & y1 = y2). 
 
     // Correct nr of blocks in whitespace
+    !(xc, yc, cc) in value: ~isWall(xc, yc).//cijfer zelf is sowieso geen muur
     {
-        // Adjacent surfaces are connected
+// Adjacent surfaces are connected
         !x1, x2 in Row, y1, y2 in Column : isConnectedSurface(x1, y1, x2, y2) <- ((x1 = x2 & y1 = y2 + 1) | (x1 = x2 + 1 & y1 = y2) | (x1 = x2 & y1 = y2 - 1) | (x1 = x2 - 1 & y1 = y2)) & (~isWall(x1, y1) & ~isWall(x2, y2)). 
         // Connect surfaces
         !x1, x2, x3 in Row, y1, y2, y3 in Column: isConnectedSurface(x1, y1, x2, y2) <- isConnectedSurface(x1, y1, x3, y3)  & isConnectedSurface(x3, y3, x2, y2) & ~(x1 = x2 & y1 = y2).
+
     }
     // Size limitation
-    !(xc, yc, cc) in value:  #{ x in Row, y in Column: isConnectedSurface(xc, yc, x, y) } = cc. 
+    !(xc, yc, cc) in value:  #{ x in Row, y in Column: isConnectedSurface(xc, yc, x, y) } = cc-1. 
+
+     // Every surface needs to be connected to a number
+    !x in Row, y in Column: ~isWall(x, y) <=> sum( lambda (xc, yc, cc) in value: if isConnectedSurface(xc, yc, x, y) | (xc = x & yc = y) then 1 else 0) = 1.
 
     // No square of walls
     !x in Row, y in Column : ~(isWall(x, y) & isWall(x+1, y) & isWall(x, y+1) & isWall(x+1, y+1)).
 
-    //  Border handling?
-
+    // Extra constraint for speed: neighbours of 1's are walls
+    {
+         //!(xc, yc, cc) in value: isWall(xc+1, yc) <- (cc = 1).
+         //!(xc, yc, cc) in value: isWall(xc-1, yc) <- (cc = 1).
+         //!(xc, yc, cc) in value: isWall(xc, yc+1) <- (cc = 1).
+         //!(xc, yc, cc) in value: isWall(xc, yc-1) <- (cc = 1).
+    }
 
 }
 structure S:V {
-    // value:= {(2, 1, 3), (2, 3, 6), (4, 3, 1), (4, 5, 2)}.
-    value := {(1, 1, 1)}.
+    //value := {(1, 1, 1)}. //2x2
+    //value:= {(1, 3, 1),(2, 1, 2),(3, 3, 1)}. //3x3
+    //value:= {(2, 1, 1), (2, 3 , 4) }. //3x4
+    //value:= {(2, 1, 3), (2, 3, 4), (4, 3, 1)}. //4x4
+    value:= {(2, 1, 3), (2,  3, 6), (4, 3, 1), (4, 5, 2)}. //5x5
 }
 
 procedure main() {
-    pretty_print(model_expand(T, S, timeout_seconds=100))
+    pretty_print(model_expand(T, S, timeout_seconds=5000))
 }
