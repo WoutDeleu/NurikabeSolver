@@ -1,5 +1,5 @@
 vocabulary V {
-    type Row := {1 ..5}
+    type Row := {1 .. 5}
     type Column := {1 .. 5}
     value: Row * Column * Int -> Bool
     isWall: Row * Column -> Bool

@@ -1,0 +1,9 @@
+Vocabulary Binaro {
+    type Row := {0 .. 4}
+    type Col := {0 .. 4}
+    is0: (Col * Row) -> Bool
+    is1: (Col * Row) -> Bool
+}
+Theory Binaro:Solver {
+    !x,y in Row:
+}
